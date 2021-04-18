@@ -1,6 +1,7 @@
-import { NgZone } from '@angular/core';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
 import { Component } from '@angular/core';
 import Peer from 'peerjs';
+import { Participant, VotesPerItem } from './domain/domain';
 import { ParticipantStoreService } from './participant-store.service';
 
 @Component({
@@ -30,6 +31,7 @@ export class AppComponent {
 
   constructor(
     public fieldService: ParticipantStoreService,
+    private cdr: ChangeDetectorRef,
     private ngz: NgZone) {
   }
 
@@ -42,18 +44,26 @@ export class AppComponent {
   }
 
   public initNew(): void {
-    this.createPeer('admin');    
+    this.createPeer('admin', undefined);    
   }
 
   public joinAsVoter(): void {
-    this.createPeer('voter');    
+    this.joinAs('voter');    
   }
 
   public joinAsAdmin(): void {
-    this.createPeer('admin');    
+    this.joinAs('admin');    
   }
 
-  private createPeer(targetState: string) {
+  private joinAs(targetState: string) {
+    if (!this.formData.meetingID) {
+      alert('Bitte Meeting-ID angeben');
+    }
+    let peerId = this.formData.meetingID.substring(2);
+    this.createPeer(targetState, peerId);
+  }
+
+  private createPeer(targetState: string, idToJoin: string | undefined) {
     //var peer = new Peer(undefined, {host: 'localhost', port: 9000, key: 'peerjs', debug: 2});
     this.peer = new Peer(undefined, 
       {
@@ -69,11 +79,123 @@ export class AppComponent {
         console.log(err);
     });
     (this.peer as any).once('open', (id: string) => {
-        this.ngz.run(() => this.initParticipant(targetState));
+        this.ngz.run(() => this.initParticipant(targetState, idToJoin));
     });
   }
 
-  private initParticipant(targetState: string) {
+  private initParticipant(targetState: string, idToJoin: string | undefined) {
+    this.fieldService.init(new Participant(
+      this.peer, 
+      this.getOrGenerateName(),
+      true,
+      targetState === 'admin',
+      () => this.ngz.run(() => this.cdr.markForCheck())));
+    if (idToJoin) {
+      this.fieldService.participant.connectTo(idToJoin);
+    }
     this.state = targetState;
+  }
+
+  private getOrGenerateName(): string {
+    let paramValue = new URL(location.href).searchParams.get('user');
+    if (paramValue) {
+      return paramValue;
+    }
+    let name = window.localStorage.getItem('myUsername');
+    if (!name) {
+      name = Date.now().toString(36) + Math.round(Math.random() * 1000000).toString(36);
+      window.localStorage.setItem('myUsername', name);
+    }
+    return name;
+  }
+
+  public get participant() {
+    return this.fieldService.participant;
+  }
+
+  public getAdminLink(): string {
+    return this.getLink('a-');    
+  }
+
+  public getVoterLink(): string {
+    return this.getLink('v-');    
+  }
+
+  private getLink(prefix: string): string {
+    if (!this.peer) {
+      return '';
+    }
+    return window.location.href.split('?')[0] + "?distEstMeetingID=" + prefix + this.peer.id;
+  }
+
+  public reconnect() {
+    let id = prompt('Ziel-Peer-ID', this.formData.meetingID);
+    if (id) {
+      this.fieldService.participant.connectTo(id);
+    }  
+  }
+
+  public voteForTop() {
+    let topVote = this.getRadioList('topVoteForm', 'topVote');
+    let selection = topVote.value;
+    if (!selection) {
+      alert('Bitte wählen Sie einen Vorschlag aus!');
+      return;
+    }
+    this.participant.voteForTop(selection);
+  }
+
+  public saveEstimate() {
+    let type = this.getRadioList('estimationForm', 'estimationType');
+    let selection = type.value;
+    if (!selection) {
+      alert('Bitte wählen Sie einen Einschätzung aus!');
+      return;
+    }
+    let estimate = selection;
+    if (selection == 'Geld') {
+      let val = this.getSelectValue('estimationForm', 'moneyAmount');
+      if (!val) {
+        alert('Bitte wählen Sie einen Betrag aus!');
+        return;
+      }
+      estimate += ',' + val;
+    }
+    if (selection == 'Zeit') {
+      let val1 = this.getSelectValue('estimationForm', 'timeAmount');
+      if (!val1) {
+        alert('Bitte wählen Sie eine Dauer aus!');
+        return;
+      }
+      let val2 = this.getSelectValue('estimationForm', 'personAmount');
+      if (!val2) {
+        alert('Bitte wählen Sie eine Anzahl Personen aus!');
+        return;
+      }
+      estimate += ',' + val1 + ',' + val2;
+    }
+    this.participant.saveEstimate(estimate);
+    this.getRadioList('estimationForm', 'estimationType')
+      .forEach(item => (item as HTMLInputElement).checked = false);
+  }
+
+  private getSelectValue(formName: string, selectName: string): string {
+    let form = document.forms.namedItem(formName);
+    let sel = form?.elements.namedItem(selectName) as HTMLSelectElement;
+    return sel.value;
+  }
+
+  private getRadioList(formName: string, radioName: string) {
+    let form = document.forms.namedItem(formName);
+    return form?.elements.namedItem(radioName) as RadioNodeList;
+  }
+
+  public itemId(index: number, item: VotesPerItem) {
+    return item.id;
+  }
+
+  public activateEstimationType(value: string) {
+    let type = this.getRadioList('estimationForm', 'estimationType');
+    type.value = value;
   }
 }

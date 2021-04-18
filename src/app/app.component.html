@@ -13,9 +13,133 @@
   Modell auswaehlen
 </ng-container>
 <ng-container *ngIf="state === 'voter'">
-  Ich bin voter
+  <ng-container *ngIf="this.participant.hasNoTopVote()">
+    Welcher der Vorschläge ist aus Ihrer Sicht am wichtigsten?
+
+    <form name="topVoteForm">
+      <table>
+        <tr *ngFor="let item of this.participant.voteSummary.stableItems; trackBy:itemId">
+          <td>
+            <input type="radio" name="topVote" value="{{item.id}}" id="{{item.id}}" />
+          </td>
+          <td>
+            <label for="{{item.id}}">{{item.text}}</label>
+          </td>
+        </tr>
+      </table>
+      <button (click)="this.voteForTop()">Abstimmen</button>
+    </form>
+  </ng-container>
+  <ng-container *ngIf="this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
+    <p>
+      {{this.participant.getCurrentItemText()}}
+    </p>
+    Wie nützlich ist dieser Vorschlag für Ihr Unternehmen?
+    <form name="estimationForm">
+      <table>
+        <tr>
+          <td>
+            <input type="radio" name="estimationType" value="irrelevant" id="irrelevant" />
+          </td>
+          <td>
+            <label for="irrelevant">ist für uns nicht relevant</label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="radio" name="estimationType" value="Zeit" id="Zeit" />
+          </td>
+          <td>
+            <label for="Zeit">spart Zeit, und zwar je Person
+              <select name="timeAmount" (click)="activateEstimationType('Zeit')">
+                <option value="48">ca. 1 Stunde pro Woche</option>
+                <option value="384">ca. 1 Tag pro Woche</option>
+                <option value="12">ca. 1 Stunde pro Monat</option>
+                <option value="96">ca. 1 Tag pro Monat</option>
+                <option value="4">ca. 1 Stunde pro Quartal</option>
+                <option value="24">ca. 1 Tag pro Quartal</option>
+                <option value="1">ca. 1 Stunde pro Jahr</option>
+                <option value="8">ca. 1 Tag pro Jahr</option>
+              </select>
+              für insgesamt
+              <select name="personAmount" (click)="activateEstimationType('Zeit')">
+                <option value="1">1 Person</option>
+                <option value="2">2 Personen</option>
+                <option value="3">3 Personen</option>
+                <option value="5">ca. 5 Personen</option>
+                <option value="10">ca. 10 Personen</option>
+                <option value="20">ca. 20 Personen</option>
+                <option value="50">ca. 50 Personen</option>
+                <option value="100">ca. 100 Personen</option>
+              </select>
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="radio" name="estimationType" value="Geld" id="Geld" />
+          </td>
+          <td>
+            <label for="Geld">spart oder bringt Geld, und zwar
+              <select name="moneyAmount" (click)="activateEstimationType('Geld')">
+                <option value="500">ca. 500 EUR pro Jahr</option>
+                <option value="1000">ca. 1.000 EUR pro Jahr</option>
+                <option value="2000">ca. 2.000 EUR pro Jahr</option>
+                <option value="5000">ca. 5.000 EUR pro Jahr</option>
+                <option value="10000">ca. 10.000 EUR pro Jahr</option>
+                <option value="20000">ca. 20.000 EUR pro Jahr</option>
+                <option value="50000">ca. 50.000 EUR pro Jahr</option>
+                <option value="100000">ca. 100.000 EUR pro Jahr</option>
+                <option value="200000">ca. 200.000 EUR pro Jahr</option>
+                <option value="500000">ca. 500.000 EUR pro Jahr</option>
+                <option value="1000000">ca. 1.000.000 EUR pro Jahr</option>
+              </select>
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="radio" name="estimationType" value="unknown" id="unknown" />
+          </td>
+          <td>
+            <label for="unknown">kann ich überhaupt nicht einschätzen</label>
+          </td>
+        </tr>
+      </table>
+      <button (click)="this.saveEstimate()">Einschätzung abgeben</button>      
+    </form>
+  </ng-container>
+  <ng-container *ngIf="!this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
+    Die Abstimmung wurde beendet. Es gibt keine weiteren Einschätzungen abzugeben.
+  </ng-container>
 </ng-container>
 <ng-container *ngIf="state === 'admin'">
-Ich bin admin
+  <table>
+    <tr>
+      <th>Vorschlag</th>
+      <th>Anzahl Top-Stimmen</th>
+      <th>Durchschnittliche Bewertung</th>
+      <th>Std.abweichung</th>
+      <th>Median-Bewertung</th>
+      <th>Bewertungen</th>
+      <th>Anzahl Bewertungen</th>
+      <th>In Bewertung durch</th>
+    </tr>
+    <tr *ngFor="let item of this.participant.voteSummary.sortedItems">
+      <td>{{ item.text }}</td>
+      <td>{{ item.topVoteCount }}</td>
+      <td>{{ item.averageEstimate | number: '1.0-0' }}</td>
+      <td>{{ item.relativeStandardDeviation | number: '1.0-0' }}%</td>
+      <td>{{ item.medianEstimate }}</td>
+      <td>{{ item.allEstimates }}</td>
+      <td>{{ item.finishedEstimateCount }}</td>
+      <td>{{ item.pendingEstimateCount }}</td>
+    </tr>
+  </table>
+  <br/>
+  <br/>
+  Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
+  Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
+  <a (click)="this.reconnect()">Neu verbinden ...</a><br/>
   <ideenmesse-peer-status [peer]="this.peer"></ideenmesse-peer-status>
 </ng-container>
