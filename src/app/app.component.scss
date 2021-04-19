@@ -1,0 +1,57 @@
+div.divInMiddle {
+    max-width: 1000px;
+    margin: auto;
+}
+
+p.item {
+    border: 1px solid;
+    padding: 8px;
+}
+
+.styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+    background-color: #5ec343;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #5ec343;
+}
+
+.styled-table th {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.styled-table td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.right {
+    text-align: right;
+}
+
+form {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    margin-top: 10px;
+}

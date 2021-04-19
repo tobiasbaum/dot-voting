@@ -17,6 +17,8 @@ export class AppComponent {
     meetingID: this.getSettingValue('distEstMeetingID', '')
   }
 
+  private itemNumber: number = 0;
+
   getSettingValue(key: string, defaultValue: string): string {
     let paramValue = new URL(location.href).searchParams.get(key);
     if (paramValue) {
@@ -177,6 +179,7 @@ export class AppComponent {
     this.participant.saveEstimate(estimate);
     this.getRadioList('estimationForm', 'estimationType')
       .forEach(item => (item as HTMLInputElement).checked = false);
+    this.itemNumber++;
   }
 
   private getSelectValue(formName: string, selectName: string): string {
@@ -198,4 +201,36 @@ export class AppComponent {
     let type = this.getRadioList('estimationForm', 'estimationType');
     type.value = value;
   }
+
+  public getCurrentItemColor(): string {
+    let idx = this.itemNumber % 3;
+    switch (idx) {
+      case 0:
+        return "#c9efb9";
+      case 1:
+        return "#93ace1";
+      case 2:
+        return "#6678ad";
+      default:
+        return "white";
+    }
+  }
+
+  public addNewItems(): void {
+    let form = document.forms.namedItem('newItems');
+    let sel = form?.elements.namedItem('itemInput') as HTMLTextAreaElement;
+    let val = sel.value;
+    if (!val) {
+      return;
+    }
+    let items = val.replace("\r\n", "\n").split("\n\n");
+    items.forEach(item => {
+      let trimmed = item.trim();
+      if (trimmed.length > 0) {
+        this.participant.addItem(trimmed);
+      }
+    })
+    sel.value = '';
+  }
+
 }

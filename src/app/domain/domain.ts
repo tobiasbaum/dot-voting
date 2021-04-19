@@ -144,7 +144,11 @@ class VoteSummary {
       if (diff != 0) {
         return diff;
       }
-      return b.averageEstimate - a.averageEstimate;
+      diff = b.averageEstimate - a.averageEstimate;
+      if (diff != 0) {
+        return diff;
+      }
+      return a.totalEstimateCount - b.totalEstimateCount;
     });
     return list;
   }
@@ -154,6 +158,24 @@ class VoteSummary {
     this.items.forEach((value, key) => list.push(value));
     list.sort((a, b) => a.id.localeCompare(b.id));
     return list;
+  }
+
+  public get maxFinishedEstimateCount(): number {
+    let max = 0;
+    this.items.forEach((value, key) => max = Math.max(max, value.finishedEstimateCount));
+    return max;
+  }
+
+  public get minFinishedEstimateCount(): number {
+    let min = Number.POSITIVE_INFINITY;
+    this.items.forEach((value, key) => min = Math.min(min, value.finishedEstimateCount));
+    return min;
+  }
+
+  public get topVoteCount(): number {
+    let sum = 0;
+    this.items.forEach((value, key) => sum += value.topVoteCount);
+    return sum;
   }
 }
   
@@ -165,6 +187,8 @@ class Participant {
   private currentItemId: string|undefined;
   private cachedSummary: VoteSummary|undefined;
 
+  private addedItemCount: number = 0;
+
   constructor(peer: any, ownName: string, clean: boolean, admin: boolean, markCallback: Function) {
     this.name = ownName;
     this.markCallback = markCallback;
@@ -175,10 +199,21 @@ class Participant {
 
     if (clean && admin) {
       this.db.put('state', 'state', 'running');
-      this.db.put('items', 'uid1', {text: 'Idee 1: Eine tolle Idee'});
-      this.db.put('items', 'uid2', {text: 'Idee 2: Eine andere Idee'});
-      this.db.put('items', 'uid3', {text: 'Idee 3: Eine dritte Idee'});
     }
+  }
+
+  public addItem(trimmed: string): void {
+    let key = this.name + this.addedItemCount;
+    this.addedItemCount++;
+    this.db.put('items', key, {text: trimmed});
+  }
+
+  public getState(): string {
+    return this.db.get('state', 'state');
+  }
+
+  public setState(state: string): void {
+    return this.db.put('state', 'state', state);
   }
 
   private invalidateCache() {
@@ -216,7 +251,7 @@ class Participant {
   }
 
   private determineNextItem() {
-    if (this.db.get('state', 'state') === 'ended' || this.hasNoTopVote()) {
+    if (this.getState() === 'ended' || this.hasNoTopVote()) {
       console.log('ended');
       this.currentItemId = undefined;
       return;

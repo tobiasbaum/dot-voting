@@ -13,7 +13,7 @@
   Modell auswaehlen
 </ng-container>
 <ng-container *ngIf="state === 'voter'">
-  <ng-container *ngIf="this.participant.hasNoTopVote()">
+  <div class="divInMiddle" *ngIf="this.participant.hasNoTopVote() && this.participant.voteSummary.stableItems.length > 0">
     Welcher der Vorschläge ist aus Ihrer Sicht am wichtigsten?
 
     <form name="topVoteForm">
@@ -29,9 +29,9 @@
       </table>
       <button (click)="this.voteForTop()">Abstimmen</button>
     </form>
-  </ng-container>
-  <ng-container *ngIf="this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
-    <p>
+  </div>
+  <div class="divInMiddle" *ngIf="this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
+    <p class="item" [style.background-color]="this.getCurrentItemColor()">
       {{this.participant.getCurrentItemText()}}
     </p>
     Wie nützlich ist dieser Vorschlag für Ihr Unternehmen?
@@ -108,35 +108,50 @@
       </table>
       <button (click)="this.saveEstimate()">Einschätzung abgeben</button>      
     </form>
-  </ng-container>
-  <ng-container *ngIf="!this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
+  </div>
+  <div class="divInMiddle" *ngIf="!this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
     Die Abstimmung wurde beendet. Es gibt keine weiteren Einschätzungen abzugeben.
-  </ng-container>
+  </div>
 </ng-container>
 <ng-container *ngIf="state === 'admin'">
-  <table>
-    <tr>
-      <th>Vorschlag</th>
-      <th>Anzahl Top-Stimmen</th>
-      <th>Durchschnittliche Bewertung</th>
-      <th>Std.abweichung</th>
-      <th>Median-Bewertung</th>
-      <th>Bewertungen</th>
-      <th>Anzahl Bewertungen</th>
-      <th>In Bewertung durch</th>
-    </tr>
-    <tr *ngFor="let item of this.participant.voteSummary.sortedItems">
-      <td>{{ item.text }}</td>
-      <td>{{ item.topVoteCount }}</td>
-      <td>{{ item.averageEstimate | number: '1.0-0' }}</td>
-      <td>{{ item.relativeStandardDeviation | number: '1.0-0' }}%</td>
-      <td>{{ item.medianEstimate }}</td>
-      <td>{{ item.allEstimates }}</td>
-      <td>{{ item.finishedEstimateCount }}</td>
-      <td>{{ item.pendingEstimateCount }}</td>
-    </tr>
+  <table class="styled-table">
+    <thead>
+      <tr>
+        <th>Vorschlag</th>
+        <th width="15em" class="right">Anzahl Top-Stimmen</th>
+        <th width="15em" class="right">Durchschnittliche Bewertung</th>
+        <th width="15em" class="right">Std.abweichung</th>
+        <th width="15em">Median-Bewertung</th>
+        <th>Bewertungen</th>
+        <th width="15em" class="right">Anzahl Bewertungen</th>
+        <th width="15em" class="right">In Bewertung durch</th>
+      </tr>  
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of this.participant.voteSummary.sortedItems">
+        <td>{{ item.text }}</td>
+        <td class="right">{{ item.topVoteCount }}</td>
+        <td class="right">{{ item.averageEstimate | number: '1.0-0' }}</td>
+        <td class="right">{{ item.relativeStandardDeviation | number: '1.0-0' }}%</td>
+        <td>{{ item.medianEstimate }}</td>
+        <td>{{ item.allEstimates }}</td>
+        <td class="right">{{ item.finishedEstimateCount }}</td>
+        <td class="right">{{ item.pendingEstimateCount }}</td>
+      </tr>  
+    </tbody>
   </table>
   <br/>
+  <br/>
+  Anzahl abgegebener Top-Stimmen: {{this.participant.voteSummary.topVoteCount}}<br/>
+  Minimale Anzahl Bewertungen: {{this.participant.voteSummary.minFinishedEstimateCount}}<br/>
+  Maximale Anzahl Bewertungen: {{this.participant.voteSummary.maxFinishedEstimateCount}}<br/>
+  Anzahl Vorschläge: {{this.participant.voteSummary.sortedItems.length}}<br/>
+  Status: {{this.participant.getState()}} <button (click)="this.participant.setState('ended')">Beenden</button> <button (click)="this.participant.setState('running')">Ende zurücknehmen</button><br/>
+  <br/>
+  <form name="newItems">
+    <textarea name="itemInput" placeholder="Hier neue Vorschläge durch Leerzeilen getrennt einfügen" rows="10" cols="100"></textarea>
+    <button (click)="this.addNewItems()">Neue Vorschläge hinzufügen</button>
+  </form>
   <br/>
   Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
   Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
