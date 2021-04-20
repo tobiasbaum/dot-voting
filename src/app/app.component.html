@@ -52,14 +52,45 @@
           <td>
             <label for="Zeit">spart Zeit, und zwar je Person
               <select name="timeAmount" (click)="activateEstimationType('Zeit')">
-                <option value="48">ca. 1 Stunde pro Woche</option>
-                <option value="384">ca. 1 Tag pro Woche</option>
-                <option value="12">ca. 1 Stunde pro Monat</option>
-                <option value="96">ca. 1 Tag pro Monat</option>
-                <option value="4">ca. 1 Stunde pro Quartal</option>
-                <option value="24">ca. 1 Tag pro Quartal</option>
-                <option value="1">ca. 1 Stunde pro Jahr</option>
-                <option value="8">ca. 1 Tag pro Jahr</option>
+                <optgroup label="pro Tag">
+                  <option value="4">ca. 1 Minute pro Tag</option>
+                  <option value="20">ca. 5 Minuten pro Tag</option>
+                  <option value="60">ca. 15 Minuten pro Tag</option>
+                  <option value="120">ca. 1/2 Stunde pro Tag</option>
+                  <option value="240">ca. 1 Stunde pro Tag</option>
+                  <option value="480">ca. 2 Stunden pro Tag</option>
+                </optgroup>
+                <optgroup label="pro Woche">
+                  <option value="48">ca. 1 Stunde pro Woche</option>
+                  <option value="96">ca. 2 Stunden pro Woche</option>
+                  <option value="192">ca. 1/2 Tag pro Woche</option>
+                  <option value="384">ca. 1 Tag pro Woche</option>
+                </optgroup>
+                <optgroup label="pro Monat">
+                  <option value="12">ca. 1 Stunde pro Monat</option>
+                  <option value="24">ca. 2 Stunden pro Monat</option>
+                  <option value="48">ca. 1/2 Tag pro Monat</option>
+                  <option value="96">ca. 1 Tag pro Monat</option>
+                  <option value="240">ca. 1/2 Woche pro Monat</option>
+                  <option value="480">ca. 1 Woche pro Monat</option>
+                </optgroup>
+                <optgroup label="pro Quartal">
+                  <option value="4">ca. 1 Stunde pro Quartal</option>
+                  <option value="8">ca. 2 Stunden pro Quartal</option>
+                  <option value="16">ca. 1/2 Tag pro Quartal</option>
+                  <option value="24">ca. 1 Tag pro Quartal</option>
+                  <option value="60">ca. 1/2 Woche pro Quartal</option>
+                  <option value="120">ca. 1 Woche pro Quartal</option>
+                </optgroup>
+                <optgroup label="pro Jahr">
+                  <option value="1">ca. 1 Stunde pro Jahr</option>
+                  <option value="2">ca. 2 Stunden pro Jahr</option>
+                  <option value="4">ca. 1/2 Tag pro Jahr</option>
+                  <option value="8">ca. 1 Tag pro Jahr</option>
+                  <option value="20">ca. 1/2 Woche pro Jahr</option>
+                  <option value="40">ca. 1 Woche pro Jahr</option>
+                  <option value="80">ca. 2 Wochen pro Jahr</option>
+                </optgroup>
               </select>
               für insgesamt
               <select name="personAmount" (click)="activateEstimationType('Zeit')">
@@ -131,8 +162,8 @@
       <tr *ngFor="let item of this.participant.voteSummary.sortedItems">
         <td>{{ item.text }}</td>
         <td class="right">{{ item.topVoteCount }}</td>
-        <td class="right">{{ item.averageEstimate | number: '1.0-0' }}</td>
-        <td class="right">{{ item.relativeStandardDeviation | number: '1.0-0' }}%</td>
+        <td class="right">{{ item.averageEstimate | number: '1.0-0' : 'de' }}</td>
+        <td class="right">{{ item.relativeStandardDeviation | number: '1.0-0' : 'de' }}%</td>
         <td>{{ item.medianEstimate }}</td>
         <td>{{ item.allEstimates }}</td>
         <td class="right">{{ item.finishedEstimateCount }}</td>
@@ -149,7 +180,7 @@
   Status: {{this.participant.getState()}} <button (click)="this.participant.setState('ended')">Beenden</button> <button (click)="this.participant.setState('running')">Ende zurücknehmen</button><br/>
   <br/>
   <form name="newItems">
-    <textarea name="itemInput" placeholder="Hier neue Vorschläge durch Leerzeilen getrennt einfügen" rows="10" cols="100"></textarea>
+    <textarea name="itemInput" placeholder="Hier neue Vorschläge durch Leerzeilen getrennt einfügen" rows="10" cols="100"></textarea><br/>
     <button (click)="this.addNewItems()">Neue Vorschläge hinzufügen</button>
   </form>
   <br/>
