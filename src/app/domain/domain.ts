@@ -1,6 +1,7 @@
 import { RTCDB } from 'rtcdb';
 
 interface ItemDto {
+  boldText: string;
   text: string;
 }
 
@@ -11,7 +12,8 @@ class VotesPerItem {
   private estimateMultiset: Map<string, number> = new Map();
 
   constructor(
-    public readonly id: string, 
+    public readonly id: string,
+    public readonly boldText: string, 
     public readonly text: string) {
 
   }
@@ -119,7 +121,7 @@ class VoteSummary {
   constructor(db: RTCDB) {
     db.forEach('items', (id, dta) => {
       let sid = id as string;      
-      this.items.set(sid, new VotesPerItem(sid, dta.text));
+      this.items.set(sid, new VotesPerItem(sid, dta.boldText, dta.text));
     });
     db.forEach('topVotes', (id, dta) => {
       let itemVotes = this.items.get(dta);
@@ -205,7 +207,20 @@ class Participant {
   public addItem(trimmed: string): void {
     let key = this.name + this.addedItemCount;
     this.addedItemCount++;
-    this.db.put('items', key, {text: trimmed});
+    let obj : ItemDto;
+    let colonIndex = trimmed.indexOf(':');
+    if (colonIndex >= 0) {
+      obj = {
+        boldText: trimmed.substring(0, colonIndex + 1),
+        text: trimmed.substring(colonIndex + 1)
+      };
+    } else {
+      obj = {
+        boldText: '',
+        text: trimmed
+      };
+    }
+    this.db.put('items', key, obj);
   }
 
   public getState(): string {
@@ -242,12 +257,21 @@ class Participant {
   }
 
   public getCurrentItemText(): string {
+    let text = this.getCurrentItemData()?.text;
+    return text ? text : '';
+  }
+
+  public getCurrentItemBoldText(): string {
+    let text = this.getCurrentItemData()?.boldText;
+    return text ? text : '';
+  }
+
+  private getCurrentItemData() {
     let id = this.getCurrentItemId();
     if (!id) {
-      return '';
+      return undefined;
     }
-    let text = this.db.get('items', id)?.text;
-    return text ? text : '';
+    return this.db.get('items', id);
   }
 
   private determineNextItem() {

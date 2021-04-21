@@ -23,7 +23,7 @@
             <input type="radio" name="topVote" value="{{item.id}}" id="{{item.id}}" />
           </td>
           <td>
-            <label for="{{item.id}}">{{item.text}}</label>
+            <label for="{{item.id}}"><b>{{item.boldText}}</b>{{item.text}}</label>
           </td>
         </tr>
       </table>
@@ -32,7 +32,7 @@
   </div>
   <div class="divInMiddle" *ngIf="this.participant.hasFurtherItems() && !this.participant.hasNoTopVote()">
     <p class="item" [style.background-color]="this.getCurrentItemColor()">
-      {{this.participant.getCurrentItemText()}}
+      <b>{{this.participant.getCurrentItemBoldText()}}</b>{{this.participant.getCurrentItemText()}}
     </p>
     Wie nützlich ist dieser Vorschlag für Ihr Unternehmen?
     <form name="estimationForm">
@@ -160,7 +160,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let item of this.participant.voteSummary.sortedItems">
-        <td>{{ item.text }}</td>
+        <td><b>{{item.boldText}}</b>{{ item.text }}</td>
         <td class="right">{{ item.topVoteCount }}</td>
         <td class="right">{{ item.averageEstimate | number: '1.0-0' : 'de' }}</td>
         <td class="right">{{ item.relativeStandardDeviation | number: '1.0-0' : 'de' }}%</td>

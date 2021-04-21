@@ -151,7 +151,7 @@ export class AppComponent {
     let type = this.getRadioList('estimationForm', 'estimationType');
     let selection = type.value;
     if (!selection) {
-      alert('Bitte wählen Sie einen Einschätzung aus!');
+      alert('Bitte wählen Sie eine Einschätzung aus!');
       return;
     }
     let estimate = selection;
