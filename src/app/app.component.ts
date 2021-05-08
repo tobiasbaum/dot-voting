@@ -88,7 +88,7 @@ export class AppComponent {
   private initParticipant(targetState: string, idToJoin: string | undefined) {
     this.fieldService.init(new Participant(
       this.peer, 
-      this.getOrGenerateName(),
+      this.formData.meetingID.substring(2) + this.getOrGenerateName(),
       true,
       targetState === 'admin',
       () => this.ngz.run(() => this.cdr.markForCheck())));
