@@ -205,8 +205,6 @@ class Participant {
   }
 
   public addItem(trimmed: string): void {
-    let key = this.name + this.addedItemCount;
-    this.addedItemCount++;
     let obj : ItemDto;
     let colonIndex = trimmed.indexOf(':');
     if (colonIndex >= 0) {
@@ -220,6 +218,11 @@ class Participant {
         text: trimmed
       };
     }
+    let key;
+    do {
+      key = this.name + this.addedItemCount;
+      this.addedItemCount++;
+    } while (this.db.get('items', key))
     this.db.put('items', key, obj);
   }
 
