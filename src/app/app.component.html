@@ -58,6 +58,8 @@
       <button (click)="this.addNewItems()">Neue Vorschläge hinzufügen</button>
     </form>
     <br/>
+    <input name="dotsPerVoter" type="number" [value]="this.participant.getDotsPerVoter()" (input)="this.setDotsPerVoter($event.target)" />
+    <br/>
     Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
     Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
   </ng-container>

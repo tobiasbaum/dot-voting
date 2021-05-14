@@ -193,4 +193,11 @@ export class AppComponent {
     sel.value = '';
   }
 
+  public setDotsPerVoter(target: any): void {
+    let value = target.value;
+    if (value > 0) {
+      this.participant.setDotsPerVoter(value as number);
+    }
+  }
+
 }
