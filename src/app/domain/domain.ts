@@ -66,14 +66,21 @@ class Participant {
   constructor(peer: any, ownName: string, clean: boolean, admin: boolean, markCallback: Function) {
     this.name = ownName;
     this.markCallback = markCallback;
-    this.db = new RTCDB('distEst.' + ownName, peer, clean);
+    this.db = new RTCDB('dotVoting.' + ownName, peer, clean);
     this.db.on(['add', 'update'], 'items', false, () => this.invalidateCache());
     this.db.on(['add', 'update'], 'topVotes', false, () => this.invalidateCache());
-    this.db.on(['add', 'update'], 'estimates', false, () => this.invalidateCache());
 
     if (clean && admin) {
-      this.db.put('state', 'state', 'running');
+      this.setDotsPerVoter(4);
     }
+  }
+
+  public getDotsPerVoter(): number {
+    return this.db.get('dotsPerVoter', 'dotsPerVoter');
+  }
+
+  public setDotsPerVoter(dotsPerVoter: number): void {
+    this.db.put('dotsPerVoter', 'dotsPerVoter', dotsPerVoter);
   }
 
   public addItem(trimmed: string): void {

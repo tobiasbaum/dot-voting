@@ -30,7 +30,7 @@
     </form>
   </div>
 </ng-container>
-<ng-container *ngIf="state === 'admin'">
+<ng-container *ngIf="state === 'summary'">
   <table class="styled-table">
     <thead>
       <tr>
@@ -49,14 +49,16 @@
   <br/>
   Anzahl Teilnehmer: {{this.participant.voteSummary.voterCount}}<br/>
   Anzahl Vorschläge: {{this.participant.voteSummary.sortedItems.length}}<br/>
-  <br/>
-  <form name="newItems">
-    <textarea name="itemInput" placeholder="Hier neue Vorschläge durch Leerzeilen getrennt einfügen" rows="10" cols="100"></textarea><br/>
-    <button (click)="this.addNewItems()">Neue Vorschläge hinzufügen</button>
-  </form>
-  <br/>
-  Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
-  Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
+  <ng-container *ngIf="this.isAdmin()">
+    <br/>
+    <form name="newItems">
+      <textarea name="itemInput" placeholder="Hier neue Vorschläge durch Leerzeilen getrennt einfügen" rows="10" cols="100"></textarea><br/>
+      <button (click)="this.addNewItems()">Neue Vorschläge hinzufügen</button>
+    </form>
+    <br/>
+    Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
+    Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
+  </ng-container>
   <a (click)="this.reconnect()">Neu verbinden ...</a><br/>
   <ideenmesse-peer-status [peer]="this.peer"></ideenmesse-peer-status>
 </ng-container>

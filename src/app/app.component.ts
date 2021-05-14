@@ -46,7 +46,7 @@ export class AppComponent {
   }
 
   public initNew(): void {
-    this.createPeer('admin', undefined);    
+    this.createPeer('summary', undefined);    
   }
 
   public joinAsVoter(): void {
@@ -54,7 +54,7 @@ export class AppComponent {
   }
 
   public joinAsAdmin(): void {
-    this.joinAs('admin');    
+    this.joinAs('summary');    
   }
 
   private joinAs(targetState: string) {
@@ -81,16 +81,20 @@ export class AppComponent {
         console.log(err);
     });
     (this.peer as any).once('open', (id: string) => {
-        this.ngz.run(() => this.initParticipant(targetState, idToJoin));
+      if (!this.formData.meetingID) {
+        this.formData.meetingID = 'a-' + id;
+      }
+      this.ngz.run(() => this.initParticipant(targetState, idToJoin));
     });
   }
 
   private initParticipant(targetState: string, idToJoin: string | undefined) {
+    console.log('mid=' + this.formData.meetingID);
     this.fieldService.init(new Participant(
       this.peer, 
       this.formData.meetingID.substring(2) + this.getOrGenerateName(),
       true,
-      targetState === 'admin',
+      this.isAdmin(),
       () => this.ngz.run(() => this.cdr.markForCheck())));
     if (idToJoin) {
       this.fieldService.participant.connectTo(idToJoin);
@@ -145,6 +149,7 @@ export class AppComponent {
       return;
     }
     this.participant.voteForTop(selection);
+    this.state = 'summary';
   }
 
   private getSelectValue(formName: string, selectName: string): string {
