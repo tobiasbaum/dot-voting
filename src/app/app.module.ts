@@ -6,13 +6,15 @@ import { FormsModule } from '@angular/forms';
 import { PeerStatusComponent } from './peer-status/peer-status.component';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+import { DotComponent } from './dot/dot.component';
 
 registerLocaleData(localeDe);
 
 @NgModule({
   declarations: [
     AppComponent,
-    PeerStatusComponent
+    PeerStatusComponent,
+    DotComponent
   ],
   imports: [
     BrowserModule,

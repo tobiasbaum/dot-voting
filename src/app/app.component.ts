@@ -17,7 +17,7 @@ export class AppComponent {
     meetingID: this.getSettingValue('dotVotingMeetingID', '')
   }
 
-  private itemNumber: number = 0;
+  private votes: string[] = [];
 
   getSettingValue(key: string, defaultValue: string): string {
     let paramValue = new URL(location.href).searchParams.get(key);
@@ -141,38 +141,39 @@ export class AppComponent {
     }  
   }
 
-  public voteForTop() {
-    let topVote = this.getRadioList('topVoteForm', 'topVote');
-    let selection = topVote.value;
-    if (!selection) {
-      alert('Bitte wählen Sie einen Vorschlag aus!');
-      return;
+  public getRemainingDots(): number {
+    return this.participant.getDotsPerVoter() - this.votes.length;
+  }
+
+  public addDotFor(itemId: string) {
+    this.votes.push(itemId);
+  }
+
+  public removeDotFor(itemId: string) {
+    var index = this.votes.indexOf(itemId);
+    console.log('removeDotFor ' + itemId + ' - ' + index);
+    if (index !== -1) {
+      this.votes.splice(index, 1);
     }
-    this.participant.voteForTop(selection);
+  }
+
+  public getDotCountFor(itemId: string) {
+    let count = 0;
+    this.votes.forEach(x => {
+      if (x === itemId) {
+        count++;
+      }
+    });
+    return count;
+  }
+
+  public saveVote() {
+    this.participant.voteForTop(this.votes);
     this.state = 'summary';
-  }
-
-  private getSelectValue(formName: string, selectName: string): string {
-    return this.getSelectElement(formName, selectName).value;
-  }
-
-  private getSelectElement(formName: string, selectName: string) {
-    let form = document.forms.namedItem(formName);
-    return form?.elements.namedItem(selectName) as HTMLSelectElement;
-  }
-
-  private getRadioList(formName: string, radioName: string) {
-    let form = document.forms.namedItem(formName);
-    return form?.elements.namedItem(radioName) as RadioNodeList;
   }
 
   public itemId(index: number, item: VotesPerItem) {
     return item.id;
-  }
-
-  public activateEstimationType(value: string) {
-    let type = this.getRadioList('estimationForm', 'estimationType');
-    type.value = value;
   }
 
   public addNewItems(): void {

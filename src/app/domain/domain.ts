@@ -19,19 +19,24 @@ class VotesPerItem {
 
 class VoteSummary {
   private items: Map<string, VotesPerItem> = new Map();
+  private randomOrder: Map<string, number>;
   private voterCnt: number = 0;
 
-  constructor(db: RTCDB) {
+  constructor(db: RTCDB, randomOrder: Map<string, number>) {
+    this.randomOrder = randomOrder;
     db.forEach('items', (id, dta) => {
       let sid = id as string;      
       this.items.set(sid, new VotesPerItem(sid, dta.boldText, dta.text));
     });
     db.forEach('topVotes', (id, dta) => {
       this.voterCnt++;
-      let itemVotes = this.items.get(dta);
-      if (itemVotes) {
-        itemVotes.topVoteCount++;
-      }
+      let ids: string[] = dta.split(',');
+      ids.forEach(itemId => {
+        let itemVotes = this.items.get(itemId);
+        if (itemVotes) {
+          itemVotes.topVoteCount++;
+        }  
+      });
     });
   }
 
@@ -45,8 +50,23 @@ class VoteSummary {
   public get stableItems(): VotesPerItem[] {
     let list: VotesPerItem[] = [];
     this.items.forEach((value, key) => list.push(value));
-    list.sort((a, b) => a.id.localeCompare(b.id));
+    list.sort((a, b) => {
+      let cmp = this.getRandomOrderFor(a.id) - this.getRandomOrderFor(b.id);
+      if (cmp != 0) {
+        return cmp;
+      }
+      return a.id.localeCompare(b.id)
+    });
     return list;
+  }
+
+  private getRandomOrderFor(itemId: string): number {
+    let rnd = this.randomOrder.get(itemId);
+    if (typeof(rnd) === 'undefined') {
+      rnd = Math.random();
+      this.randomOrder.set(itemId, rnd);
+    }
+    return rnd;
   }
 
   public get voterCount(): number {
@@ -60,6 +80,7 @@ class Participant {
   public readonly markCallback;
 
   private cachedSummary: VoteSummary|undefined;
+  private randomOrder: Map<string, number> = new Map();
 
   private addedItemCount: number = 0;
 
@@ -129,13 +150,13 @@ class Participant {
 
   public get voteSummary(): VoteSummary {
     if (!this.cachedSummary) {
-      this.cachedSummary = new VoteSummary(this.db);
+      this.cachedSummary = new VoteSummary(this.db, this.randomOrder);
     }
     return this.cachedSummary;
   }
 
-  voteForTop(itemId: string) {
-    this.db.put('topVotes', this.name, itemId);
+  voteForTop(itemIds: string[]) {
+    this.db.put('topVotes', this.name, itemIds.join(','));
     this.invalidateCache();
   }
 }

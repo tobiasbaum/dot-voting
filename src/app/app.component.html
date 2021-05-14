@@ -11,22 +11,25 @@
 </ng-container>
 <ng-container *ngIf="state === 'voter'">
   <div class="divInMiddle">
-    Bitte verteilen Sie insgesamt TODO Punkte an die aus Ihrer Sicht wichtigsten Vorschläge. Wenn Sie möchten, können Sie einem Vorschlag dabei auch mehrere Punkte geben.<br/>
+    Bitte verteilen Sie insgesamt {{this.participant.getDotsPerVoter()}} Punkte an die aus Ihrer Sicht wichtigsten Vorschläge. Wenn Sie möchten, können Sie einem Vorschlag dabei auch mehrere Punkte geben.<br/>
     <br/>
-    Verbleibende Punkte: TODO<br/>
+    Verbleibende Punkte: {{this.getRemainingDots()}}<br/>
 
     <form name="topVoteForm">
       <table>
         <tr *ngFor="let item of this.participant.voteSummary.stableItems; trackBy:itemId">
-          <td>
-            <input type="radio" name="topVote" value="{{item.id}}" id="{{item.id}}" />
+          <td style="text-align:right; min-width: 5em;">
+            <app-dot [empty]="true" (click)="this.addDotFor(item.id)"></app-dot>
+            <app-dot [empty]="false" *ngFor="let x of [].constructor(this.getDotCountFor(item.id));" (click)="this.removeDotFor(item.id)"></app-dot>
           </td>
-          <td>
+          <td (click)="this.addDotFor(item.id)">
             <label for="{{item.id}}"><b>{{item.boldText}}</b>{{item.text}}</label>
           </td>
         </tr>
-      </table>
-      <button (click)="this.voteForTop()">Abstimmen</button>
+      </table><br/><br/>
+      <div *ngIf="this.getRemainingDots() > 0">Die Abstimmung kann noch nicht abgesendet werden, weil noch nicht alle Punkte vergeben wurden.</div>
+      <div *ngIf="this.getRemainingDots() < 0">Die Abstimmung kann nicht abgesendet werden, weil zu viele Punkte vergeben wurden. Klicken Sie auf einen Punkt, um ihn wieder zu löschen.</div>
+      <button (click)="this.saveVote()" [disabled]="this.getRemainingDots() != 0">Abstimmung absenden</button>
     </form>
   </div>
 </ng-container>
@@ -46,7 +49,6 @@
     </tbody>
   </table>
   <br/>
-  <br/>
   Anzahl Teilnehmer: {{this.participant.voteSummary.voterCount}}<br/>
   Anzahl Vorschläge: {{this.participant.voteSummary.sortedItems.length}}<br/>
   <ng-container *ngIf="this.isAdmin()">
@@ -59,6 +61,7 @@
     Admin-Link: <a [href]="this.getAdminLink()">{{ this.getAdminLink() }}</a><br/>
     Teilnehmer-Link: <a [href]="this.getVoterLink()">{{ this.getVoterLink() }}</a><br/>
   </ng-container>
+  <br/>
   <a (click)="this.reconnect()">Neu verbinden ...</a><br/>
   <ideenmesse-peer-status [peer]="this.peer"></ideenmesse-peer-status>
 </ng-container>

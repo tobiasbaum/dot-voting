@@ -1,0 +1,19 @@
+.empty-dot::before {
+    color: #213968;
+    content: '\0025EF';
+}
+
+.empty-dot:hover::before {
+    color: #5cc444;
+    content: '\002B24';
+}
+
+.filled-dot::before {
+    color: #213968;
+    content: '\002B24';
+}
+
+.filled-dot:hover::before {
+    color: #5cc444;
+    content: '\0025EF';
+}
