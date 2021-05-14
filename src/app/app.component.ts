@@ -14,7 +14,7 @@ export class AppComponent {
   public peer: Peer|undefined;
 
   public formData = {
-    meetingID: this.getSettingValue('distEstMeetingID', '')
+    meetingID: this.getSettingValue('dotVotingMeetingID', '')
   }
 
   private itemNumber: number = 0;
@@ -127,7 +127,7 @@ export class AppComponent {
     if (!this.peer) {
       return '';
     }
-    return window.location.href.split('?')[0] + "?distEstMeetingID=" + prefix + this.peer.id;
+    return window.location.href.split('?')[0] + "?dotVotingMeetingID=" + prefix + this.peer.id;
   }
 
   public reconnect() {
@@ -145,68 +145,6 @@ export class AppComponent {
       return;
     }
     this.participant.voteForTop(selection);
-  }
-
-  public saveEstimate() {
-    let type = this.getRadioList('estimationForm', 'estimationType');
-    let selection = type.value;
-    if (!selection) {
-      alert('Bitte wählen Sie eine Einschätzung aus!');
-      return;
-    }
-    let estimate = selection;
-    if (selection == 'Geld') {
-      let val = this.getSelectValue('estimationForm', 'moneyAmount');
-      if (!val) {
-        alert('Bitte wählen Sie einen Betrag aus!');
-        return;
-      }
-      estimate += ',' + val;
-    }
-    if (selection == 'Zeit') {
-      let val1 = this.getSelectValue('estimationForm', 'timeAmount');
-      if (!val1) {
-        alert('Bitte wählen Sie eine Dauer aus!');
-        return;
-      }
-      let val2 = this.getSelectValue('estimationForm', 'personAmount');
-      if (!val2) {
-        alert('Bitte wählen Sie eine Anzahl Personen aus!');
-        return;
-      }
-      estimate += ',' + val1 + ',' + val2;
-    }
-    if (selection == 'Risiko') {
-      let val1 = this.getSelectValue('estimationForm', 'freqAmountBefore');
-      if (!val1) {
-        alert('Bitte wählen Sie eine Vorher-Häufigkeit aus!');
-        return;
-      }
-      let val2 = this.getSelectValue('estimationForm', 'damageAmountBefore');
-      if (!val2) {
-        alert('Bitte wählen Sie eine Vorher-Schadenshöhe aus!');
-        return;
-      }
-      let val3 = this.getSelectValue('estimationForm', 'riskReduction');
-      if (!val3) {
-        alert('Bitte wählen Sie die Verringerung der Wahrscheinlichkeit aus!');
-        return;
-      }
-      estimate += ',' + val1 + ',' + val2 + ',' + val3;
-    }
-
-    this.participant.saveEstimate(estimate);
-
-    this.getSelectElement('estimationForm', 'moneyAmount').value = '';
-    this.getSelectElement('estimationForm', 'timeAmount').value = '';
-    this.getSelectElement('estimationForm', 'personAmount').value = '';
-    this.getSelectElement('estimationForm', 'freqAmountBefore').value = '';
-    this.getSelectElement('estimationForm', 'damageAmountBefore').value = '';
-    this.getSelectElement('estimationForm', 'riskReduction').value = '';
-    this.getRadioList('estimationForm', 'estimationType')
-      .forEach(item => (item as HTMLInputElement).checked = false);
-
-    this.itemNumber++;
   }
 
   private getSelectValue(formName: string, selectName: string): string {
@@ -230,20 +168,6 @@ export class AppComponent {
   public activateEstimationType(value: string) {
     let type = this.getRadioList('estimationForm', 'estimationType');
     type.value = value;
-  }
-
-  public getCurrentItemColor(): string {
-    let idx = this.itemNumber % 3;
-    switch (idx) {
-      case 0:
-        return "#c9efb9";
-      case 1:
-        return "#93ace1";
-      case 2:
-        return "#6678ad";
-      default:
-        return "white";
-    }
   }
 
   public addNewItems(): void {

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "distributed-estimation": {
+    "dot-voting": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/distributed-estimation",
+            "outputPath": "dist/dot-voting",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -68,18 +68,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "distributed-estimation:build"
+            "browserTarget": "dot-voting:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "distributed-estimation:build:production"
+              "browserTarget": "dot-voting:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "distributed-estimation:build"
+            "browserTarget": "dot-voting:build"
           }
         },
         "test": {
@@ -116,16 +116,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "distributed-estimation:serve"
+            "devServerTarget": "dot-voting:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "distributed-estimation:serve:production"
+              "devServerTarget": "dot-voting:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "distributed-estimation"
+  "defaultProject": "dot-voting"
 }
